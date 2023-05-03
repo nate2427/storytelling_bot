@@ -25,17 +25,17 @@ def create_midjourney_prompts(url, story):
     # format the prompts
     formatted_prompts = format_midjourney_data_for_notion(prompts)
     # save formatted prompts to a notion page
-    write_voiceover_script_to_notion_page(
+    midjourney_prompts_url = write_voiceover_script_to_notion_page(
         formatted_prompts, url, name="Midjourney Prompts", title="Prompts"
     )
-    return formatted_prompts
+    return formatted_prompts, midjourney_prompts_url
 
 
 def run_journal_to_video(url):
     # create the story from the journal
     story_obj = create_story_from_notion_journal(url)
     # create the midjourney prompts for the story
-    midjourney_formatted_prompts = create_midjourney_prompts(
+    midjourney_formatted_prompts, prompts_url = create_midjourney_prompts(
         story_obj["story_url"], story_obj["story"])
     # format the midjourney prompts for easy generation
     midjourney_prompts_list = get_midjourney_prompts_for_image_creation(
@@ -43,7 +43,7 @@ def run_journal_to_video(url):
     # generate ai art
     ai_art_links = generate_ai_art(midjourney_prompts_list)
     # write the ai art to a notion page
-    add_images_to_story(story_obj['story_url'], ai_art_links)
+    add_images_to_story(prompts_url, ai_art_links)
 
 
 run_journal_to_video(
