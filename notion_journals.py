@@ -189,6 +189,41 @@ def append_image_block(block_id, image_url):
     response = requests.patch(url, headers=headers, json=data)
 
 
+# does not work
+def write_audio_to_notion_page(audio_url, url, title="Voiceover"):
+    # get page id
+    page_id = extract_page_id(url)
+    children = [
+        {
+            "object": "block",
+            "type": "file",
+            "file": {
+                    "external": {
+                        "url": audio_url
+                    }
+            }
+        }
+
+    ]
+    new_page = {
+        "parent": {"page_id": page_id},
+        "properties": {
+            "title": [
+                {
+                    "text": {
+                        "content": title
+                    }
+                }
+            ]
+        },
+        "children": children
+    }
+
+    story_page = notion.pages.create(
+        properties=new_page["properties"], children=new_page["children"], parent=new_page["parent"])
+    return story_page["url"]
+
+
 # url = "https://www.notion.so/Midjourney-Prompts-534a0cac9cf04712803f47536b6043c6"
 # images = ['https://replicate.delivery/pbxt/taMeCxtKZ0U8SSYimjgyeMitv6mLMm6anoI1Xxh65TQ8sC4QA/out-0.png', 'https://replicate.delivery/pbxt/DS3cqTSx3gZ1JVPLxmixjon0IVGr38x8d2vr32SgxYNOrAOE/out-0.png',
 #           'https://replicate.delivery/pbxt/j25dWeYrYdTJECbAUr11YYZr198Odfxsy5yje1k42pAyZFwhA/out-0.png', 'https://replicate.delivery/pbxt/u1swVibZAMrgMJojpb1jkebwf3kPf8h2irf2ehxQaoePOrAOE/out-0.png', 'https://replicate.delivery/pbxt/UfLqfKAF76lns0VJTayZfV7nBOGmo4Y6LdlOOPSoOv24ZFwhA/out-0.png']
