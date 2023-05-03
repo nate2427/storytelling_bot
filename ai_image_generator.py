@@ -25,19 +25,11 @@ prompts = [
 ]
 
 
-def main():
-    print("Starting main() function...")
+def generate_ai_art(prompts=prompts):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(get_image_for_prompt, prompt)
                    for prompt in prompts]
         images = [future.result() for future in futures]
     images = [
         image[1] for prompt in prompts for image in images if image[0] == prompt]
-
-    print("Done!")
     return images
-
-
-if __name__ == "__main__":
-    images = main()
-    print(images)

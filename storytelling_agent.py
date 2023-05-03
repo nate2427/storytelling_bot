@@ -1,5 +1,6 @@
 from ai_funcs import create_story, create_midjourney_prompts_from_story, format_midjourney_data_for_notion, get_midjourney_prompts_for_image_creation
-from notion_journals import read_journal_from_notion, write_voiceover_script_to_notion_page
+from notion_journals import read_journal_from_notion, write_voiceover_script_to_notion_page, add_images_to_story
+from ai_image_generator import generate_ai_art
 import json
 
 
@@ -36,12 +37,13 @@ def run_journal_to_video(url):
     # create the midjourney prompts for the story
     midjourney_formatted_prompts = create_midjourney_prompts(
         story_obj["story_url"], story_obj["story"])
+    # format the midjourney prompts for easy generation
     midjourney_prompts_list = get_midjourney_prompts_for_image_creation(
         midjourney_formatted_prompts)
-    print(midjourney_prompts_list)
-    # paste into file as json
-    with open("midjourney_prompts.json", "w") as f:
-        json.dump(midjourney_prompts_list, f)
+    # generate ai art
+    ai_art_links = generate_ai_art(midjourney_prompts_list)
+    # write the ai art to a notion page
+    add_images_to_story(story_obj['story_url'], ai_art_links)
 
 
 run_journal_to_video(

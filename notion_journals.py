@@ -1,5 +1,6 @@
 from notion_client import Client
 import os
+import requests
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -22,7 +23,6 @@ def read_journal_from_notion(url):
     print(f"Page id: {page_id}")
 
     # Retrieve the blocks for the Page
-    # db = notion.pages.retrieve(page_id=page_id)
     results = notion.blocks.children.list(
         block_id=page_id,
         page_size=100
@@ -78,5 +78,117 @@ def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script",
     return story_page["url"]
 
 
-# write_voiceover_script_to_notion_page(
-#     "This is a test voiceover script", journal_notion_page)
+def add_images_to_story(url, images):
+    # get page id
+    page_id = extract_page_id(url)
+    # Retrieve the blocks for the Page
+    results = notion.blocks.children.list(
+        block_id=page_id,
+        page_size=100
+    )
+    image_index = 0
+
+    # loop through all the children of the page and adds an image to blocks that are paragraphs with just \n\n
+    for i, result in enumerate(results["results"]):
+        if i == len(results["results"]) - 1:
+            break
+
+        next_block_type = results["results"][i+1]["type"]
+        if next_block_type == "paragraph":
+            rich_text_list = results["results"][i +
+                                                1][next_block_type]["rich_text"]
+            if len(rich_text_list) > 0:
+                block_text = rich_text_list[0]["text"]["content"]
+                if block_text == "\n\n":
+                    # append an image block to the current block
+                    image_block = {
+                        "external": {
+                            "url": images[image_index]
+                        }
+                    }
+                    image_index += 1
+                    # append the image block to the current block using the current block's id
+                    append_image_block(
+                        results["results"][i]["id"], image_block)
+
+
+def remove_images_from_story(url):
+    # get page id
+    page_id = extract_page_id(url)
+    # Retrieve the blocks for the Page
+    results = notion.blocks.children.list(
+        block_id=page_id,
+        page_size=100
+    )
+    # loop thru and find blocks that are images and remove them
+    for result in results["results"]:
+        print(result, "\n\n")
+        if result["type"] == "image":
+            print("image block")
+            # append newlines block to the current block
+            append_newlines_block(result["id"])
+            # remove the image
+            remove_block_from_page(block_id=result["id"])
+
+
+def remove_block_from_page(block_id):
+    url = f'https://api.notion.com/v1/blocks/{block_id}'
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Notion-Version": "2022-06-28",
+    }
+    response = requests.delete(url, headers=headers)
+
+
+def append_newlines_block(block_id):
+    url = f'https://api.notion.com/v1/blocks/{block_id}/children'
+    headers = {
+        "accept": "application/json",
+        "Notion-Version": "2022-06-28",
+        "content-type": "application/json",
+        "Authorization": f"Bearer {notion_token}"
+    }
+    data = {
+        "children": [
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": "\n\n"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    response = requests.patch(url, headers=headers, json=data)
+
+
+def append_image_block(block_id, image_url):
+    url = f'https://api.notion.com/v1/blocks/{block_id}/children'
+    headers = {
+        "accept": "application/json",
+        "Notion-Version": "2022-06-28",
+        "content-type": "application/json",
+        "Authorization": f"Bearer {notion_token}"
+    }
+    data = {
+        "children": [
+            {
+                "object": "block",
+                "type": "image",
+                "image": image_url
+            }
+        ]
+    }
+    response = requests.patch(url, headers=headers, json=data)
+
+
+# url = "https://www.notion.so/Midjourney-Prompts-534a0cac9cf04712803f47536b6043c6"
+# images = ['https://replicate.delivery/pbxt/taMeCxtKZ0U8SSYimjgyeMitv6mLMm6anoI1Xxh65TQ8sC4QA/out-0.png', 'https://replicate.delivery/pbxt/DS3cqTSx3gZ1JVPLxmixjon0IVGr38x8d2vr32SgxYNOrAOE/out-0.png',
+#           'https://replicate.delivery/pbxt/j25dWeYrYdTJECbAUr11YYZr198Odfxsy5yje1k42pAyZFwhA/out-0.png', 'https://replicate.delivery/pbxt/u1swVibZAMrgMJojpb1jkebwf3kPf8h2irf2ehxQaoePOrAOE/out-0.png', 'https://replicate.delivery/pbxt/UfLqfKAF76lns0VJTayZfV7nBOGmo4Y6LdlOOPSoOv24ZFwhA/out-0.png']
