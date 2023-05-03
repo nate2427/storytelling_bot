@@ -29,12 +29,10 @@ def read_journal_from_notion(url):
     )
 
     # get all the children of the page
-    # Print the block type and text for each block
     str_result = ""
     for result in results["results"]:
         block_type = result["type"]
         if block_type != "image" and block_type != "child_page":
-            print(result)
             rich_text_list = result[block_type]["rich_text"]
             if len(rich_text_list) > 0:
                 block_text = rich_text_list[0]["text"]["content"]
@@ -44,11 +42,22 @@ def read_journal_from_notion(url):
     return str_result
 
 
-def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script"):
-    print(content)
-    print(name)
+def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script", title="Script"):
     # get page id
     page_id = extract_page_id(url)
+    children = []
+    children.append({
+        "object": "block",
+        "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"type": "text", "text": {"content": title}}]
+                }
+    })
+    for parag in content.split("\n\n"):
+        children.append({"object": "block", "type": "paragraph", "paragraph": {
+                        "rich_text": [{"type": "text", "text": {"content": parag}}]}})
+        children.append({"object": "block", "type": "paragraph", "paragraph": {
+                        "rich_text": [{"type": "text", "text": {"content": "\n\n"}}]}})
 
     # Create a new page in the database
     new_page = {
@@ -62,29 +71,7 @@ def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script")
                 }
             ]
         },
-        "children": [
-            {
-                "object": "block",
-                "type": "heading_2",
-                "heading_2": {
-                    "rich_text": [{"type": "text", "text": {"content": "Script Title"}}]
-                }
-            },
-            {
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {
-                    "rich_text": [
-                        {
-                            "type": "text",
-                            "text": {
-                                "content": content,
-                            }
-                        }
-                    ]
-                }
-            },
-        ]
+        "children": children
     }
     story_page = notion.pages.create(
         properties=new_page["properties"], children=new_page["children"], parent=new_page["parent"])

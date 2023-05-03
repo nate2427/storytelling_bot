@@ -3,12 +3,13 @@ from langchain.llms import OpenAI
 from langchain.chains import LLMChain
 import openai
 import os
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-llm = OpenAI(temperature=0.76)
+llm = OpenAI(temperature=0.76, max_tokens=1400)
 
 
 def create_story(journal_entry):
@@ -44,3 +45,33 @@ def create_story(journal_entry):
         "story": story,
         "story_title": story_title
     })
+
+
+def create_midjourney_prompts_from_story(story):
+    # define prompt template
+    prompt_template = "Given the children story, split the story into 7 even sections and then generate very descriptive midjourney ai art prompts that creates a high level of engagement about that specific part of the story. The prompts should always describe Nate as a black man with golden brown skintone, strong jaw line, nappy hair fro. From that point, you can describe him for appropriate for the scene, whether thats age, timeframe, weather, location, etc. Pretty, i want to keep the same description of Nate so that midjourney keeps the original image of Nate intact as it generates different scenes from the original from the plot of the story. I need you to return this as a json list of objects that looks like this:\n keys: text and midjourney_prompt. the text represents the text from the original story that will be read when that image is shown. The text need to all add up to be the whole original story when all values for the text keys are concatenated together. \n\nStory:\n{story}\n\nPrompts:\n"
+
+    prompt = PromptTemplate(
+        input_variables=["story"],
+        template=prompt_template
+    )
+
+    # create LLMChain object
+    chain = LLMChain(llm=llm, prompt=prompt)
+
+    prompts = chain.run(story)
+
+    return prompts
+
+
+def format_midjourney_data_for_notion(prompts):
+    prompt_template = "Take the following json list and format it in the following way as a string:\nStory Text: text key from object\nMidjourney Prompt: midjourney_prompt key from object\n\nStory Text: text key from object\nMidjourney Prompt: midjourney_prompt key from object\n\n...json list:\n{prompts}\n\n"
+
+    prompt = PromptTemplate(
+        input_variables=["prompts"],
+        template=prompt_template
+    )
+
+    chain = LLMChain(llm=llm, prompt=prompt)
+
+    return chain.run(prompts)
