@@ -7,12 +7,16 @@ notion_token = os.getenv('NOTION_API_KEY')
 # this will be input to the function, will change once i build an app around it. this is for testing
 journal_notion_page = "https://www.notion.so/Journal-Entry-One-072721f4d3954a87a8170183f88470a3"
 
+notion = Client(auth=notion_token)
 
-def connect_to_notion(api_key, url):
-    notion = Client(auth=api_key)
 
+def extract_page_id(url):
+    return url.split("-")[-1]
+
+
+def read_journal_from_notion(url):
     # parse the url to get the page id by splitting the string at - and grabbing the last value
-    page_id = url.split("-")[-1]
+    page_id = extract_page_id(url)
 
     print("Connecting to notion...")
     print(f"Page id: {page_id}")
@@ -38,5 +42,49 @@ def connect_to_notion(api_key, url):
     return str_result
 
 
-print(connect_to_notion(notion_token,
-                        journal_notion_page))
+def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script"):
+    # get page id
+    page_id = extract_page_id(url)
+
+    # Create a new page in the database
+    new_page = {
+        "parent": {"page_id": page_id},
+        "properties": {
+            "title": [
+                {
+                    "text": {
+                        "content": name
+                    }
+                }
+            ]
+        },
+        "children": [
+            {
+                "object": "block",
+                "type": "heading_2",
+                "heading_2": {
+                    "rich_text": [{"type": "text", "text": {"content": "Script Title"}}]
+                }
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": content,
+                            }
+                        }
+                    ]
+                }
+            },
+        ]
+    }
+    notion.pages.create(
+        properties=new_page["properties"], children=new_page["children"], parent=new_page["parent"])
+
+
+write_voiceover_script_to_notion_page(
+    "This is a test voiceover script", journal_notion_page)
