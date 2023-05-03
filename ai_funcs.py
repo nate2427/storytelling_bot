@@ -75,3 +75,35 @@ def format_midjourney_data_for_notion(prompts):
     chain = LLMChain(llm=llm, prompt=prompt)
 
     return chain.run(prompts)
+
+
+def get_midjourney_prompts_for_image_creation(prompts):
+    prompt_template = "Take the following document and just grab the text after each part that says 'Midjourney Prompt:' and append it to a python list and return the full list. Make sure to use double quotes for each string item in the list:\ndocument:\n{prompts}\n\n"
+    prompt = PromptTemplate(
+        input_variables=["prompts"],
+        template=prompt_template
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    list_as_str = chain.run(prompts)
+    print(list_as_str)
+    lst = json.loads(list_as_str)
+    return lst
+
+
+# prompts = """
+# Story Text: Nate was feeling a bit uninspired until he had the chance to talk with an incredible man who had worked with 8 different presidents.
+# Midjourney Prompt: Nate is sitting in a large boardroom, looking up at the incredibly person who had the chance to work with 8 different presidents. His golden brown skin glistens in the light of the boardroom and his nappy fro frames his strong jawline. He looks up with a face of awe, taking in the words of wisdom from this wise figure.
+
+# Story Text: This man had seen the world and he told Nate that he was special! It was just the confirmation Nate needed to follow his dream of being an empowerment leader.
+# Midjourney Prompt: Nate is standing in the middle of a busy city street, his eyes closed and his head tilted up to the sky. His golden brown skin is illuminated by the warm light of the setting sun and his nappy fro is gently swaying in the wind. He is standing tall and proud, feeling inspired by the words of the man he had just met.
+
+# Story Text: Nate had an idea to create a video automation tool that would use his voice and AI art to create empowerment stories from his journal entries. He knew this would help him stay motivated to write in his journal and he was excited to use all the videos to share his stories with the world.
+# Midjourney Prompt: Nate is hunched over his laptop, working intently on a project he is passionate about. His golden brown skin glows from the light of his laptop screen and his nappy fro is pulled up in a ponytail. He is typing quickly, with a determined look on his face, as he works to create an automation tool that will help him make his dreams come true.
+
+# Story Text: He was now feeling in sync with himself and his journey and knew that he had the power to make a difference.
+# Midjourney Prompt: Nate is standing on a beach, looking out at the vast ocean before him. His golden brown skin shimmers in the sunlight and his nappy fro is blowing gently in the wind. He is standing tall, feeling a sense of peace and confidence as he realizes that he has the power to make a difference.
+
+# Story Text: Nate's story reminds us that no matter how difficult things may seem, we all have the potential to become amazing leaders when we believe in ourselves.
+# Midjourney Prompt: Nate is standing atop a mountain, looking out at the world below him. His golden brown skin is glowing in the sunlight and his nappy fro is blowing in the wind. He is standing tall, with a look of determination on his face, as he reminds himself and others that no matter how hard things may seem, we can all become amazing leaders when we believe in ourselves.
+# """
+# print(get_midjourney_prompts_for_image_creation(prompts))
