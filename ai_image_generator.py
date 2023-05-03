@@ -32,7 +32,7 @@ def main():
                    for prompt in prompts]
         images = [future.result() for future in futures]
     images = [
-        image for prompt in prompts for image in images if image[0] == prompt]
+        image[1] for prompt in prompts for image in images if image[0] == prompt]
 
     print("Done!")
     return images
