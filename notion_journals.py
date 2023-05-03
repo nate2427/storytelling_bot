@@ -33,16 +33,20 @@ def read_journal_from_notion(url):
     str_result = ""
     for result in results["results"]:
         block_type = result["type"]
-        if block_type != "image":
+        if block_type != "image" and block_type != "child_page":
+            print(result)
             rich_text_list = result[block_type]["rich_text"]
-            block_text = rich_text_list[0]["text"]["content"]
-            str_result += f"{block_text}\n"
+            if len(rich_text_list) > 0:
+                block_text = rich_text_list[0]["text"]["content"]
+                str_result += f"{block_text}\n"
 
     # Return the titles of the journal entries as a list of strings
     return str_result
 
 
 def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script"):
+    print(content)
+    print(name)
     # get page id
     page_id = extract_page_id(url)
 
@@ -82,8 +86,9 @@ def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script")
             },
         ]
     }
-    notion.pages.create(
+    story_page = notion.pages.create(
         properties=new_page["properties"], children=new_page["children"], parent=new_page["parent"])
+    return story_page["url"]
 
 
 # write_voiceover_script_to_notion_page(
