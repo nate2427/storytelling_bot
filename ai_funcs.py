@@ -1,6 +1,7 @@
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
 from langchain.chains import LLMChain
+from langchain.chat_models import ChatOpenAI
 import openai
 import os
 import json
@@ -9,7 +10,7 @@ load_dotenv()
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
-llm = OpenAI(temperature=0.76, max_tokens=1400)
+llm = ChatOpenAI(temperature=0.76, max_tokens=1400, model_name="gpt-3.5-turbo")
 
 
 def create_story(journal_entry):
@@ -78,7 +79,7 @@ def format_midjourney_data_for_notion(prompts):
 
 
 def get_midjourney_prompts_for_image_creation(prompts):
-    prompt_template = "Take the following document and just grab the text after each part that says 'Midjourney Prompt:' and append it to a python list and return the full list. Make sure to use double quotes for each string item in the list:\ndocument:\n{prompts}\n\n"
+    prompt_template = "Take the following document and just grab the text after each part that says 'Midjourney Prompt:' and append it to a python list and return the full list. Make sure to use regular quotation marks (\"index value\") for each string item in the list indexes and just return the list and nothing else. Output should look like [\"item1\", \"item2\", ....]:\ndocument:\n{prompts}\n\nAnswer:\n"
     prompt = PromptTemplate(
         input_variables=["prompts"],
         template=prompt_template
@@ -89,6 +90,19 @@ def get_midjourney_prompts_for_image_creation(prompts):
     lst = json.loads(list_as_str)
     return lst
 
+
+def get_story_text_list(prompts):
+    prompt_template = "Take the following document and just grab the text after each part that says 'Story Text:' and append it to a python list and return the full list. Make sure to use regular quotation marks (ex. \"index value\") for each string item in the list indexes and just return the list and nothing else. Output should look like -> [\"item1\", \"item2\", ....]:\ndocument:\n{prompts}\n\nAnswer:\n"
+    prompt = PromptTemplate(
+        input_variables=["prompts"],
+        template=prompt_template
+    )
+    chain = LLMChain(llm=llm, prompt=prompt)
+    list_as_str = chain.run(prompts)
+    print(list_as_str)
+    lst = json.loads(list_as_str)
+    print(lst)
+    return lst
 
 # prompts = """
 # Story Text: Nate was feeling a bit uninspired until he had the chance to talk with an incredible man who had worked with 8 different presidents.

@@ -1,7 +1,8 @@
-from ai_funcs import create_story, create_midjourney_prompts_from_story, format_midjourney_data_for_notion, get_midjourney_prompts_for_image_creation
+from ai_funcs import create_story, create_midjourney_prompts_from_story, format_midjourney_data_for_notion, get_midjourney_prompts_for_image_creation, get_story_text_list
 from notion_journals import read_journal_from_notion, write_voiceover_script_to_notion_page, add_images_to_story
 from ai_image_generator import generate_ai_art
 from ai_voice_agent import create_voiceover_from_text
+from video_agent import generate_empowering_video
 import json
 
 
@@ -48,6 +49,10 @@ def run_journal_to_video(url):
     # create the voiceover audio
     audio = create_voiceover_from_text(story_obj["story"])
     # write the audio to a notion page
+    story_text_list = get_story_text_list(story_obj["story"])
+    generate_empowering_video(
+        audio, story_text_list, ai_art_links
+    )
 
 
 run_journal_to_video(

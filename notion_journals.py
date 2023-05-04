@@ -183,6 +183,20 @@ def append_image_block(block_id, image_url):
                 "object": "block",
                 "type": "image",
                 "image": image_url
+            },
+            {
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": image_url
+                            }
+                        }
+                    ]
+                }
             }
         ]
     }

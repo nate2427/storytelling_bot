@@ -32,4 +32,5 @@ def generate_ai_art(prompts=prompts):
         images = [future.result() for future in futures]
     images = [
         image[1] for prompt in prompts for image in images if image[0] == prompt]
+    print(images)
     return images
