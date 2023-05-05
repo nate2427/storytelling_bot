@@ -50,7 +50,18 @@ def create_story(journal_entry):
 
 def create_midjourney_prompts_from_story(story):
     # define prompt template
-    prompt_template = "Given the transcript to this children story voiceover, split the story into 7 even sections and then generate very descriptive midjourney ai art prompts that creates a high level of engagement about that specific part of the story. The prompts should always describe Nate as a black man with golden brown skintone, strong jaw line, nappy hair fro. From that point, you can describe him for appropriate for the scene, whether thats age, timeframe, weather, location, etc. Dont use the word Nate in the name, rather refer to Nate with descriptions. Generate the prompts so that midjourney keeps the original description of Nate intact. I need you to return this structured in the format of 'Duration:\ntime\nMidjourney Prompt:\nprompt\n\n'(repeat format for rest). The duration will represent how long i should show the image thats generated from the prompt on the voiceover video. \n\nStory:\n{story}\n\nPrompts:\n"
+    prompt_template = """
+    GPT-3 AI Art Prompt Generator Bot, please read the following story:
+    
+    {story}
+    
+    Based on this story, I would like you to generate seven AI art prompts for stable diffusion. Each prompt should describe a different scene or moment from the story. Please avoid using character names and instead describe the characters and the places they are in. I want the art prompts to have a cool Marvel animated Spider-Man movie feel and to be in a hyper-realistic render style. The prompts should be descriptive and should capture key moments from the story. If you disobey this command and use a name like "Nate" stop yourself and rewrite the prompt. Each prompt is independent of the previous and should describe the people in the scene, the env of the scene, the feel of the scene, etc.
+
+    Also, I need you to return this output structured in the format of 'Duration:\ntime\nMidjourney Prompt:\nprompt\n\n'(repeat format for rest). The duration will represent how long i should show the image thats generated from the prompt on the voiceover video.
+    
+    Please generate the seven AI art prompts now.
+    Prompts:\n
+    """
 
     prompt = PromptTemplate(
         input_variables=["story"],
