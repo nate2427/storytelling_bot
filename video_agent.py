@@ -6,7 +6,8 @@ images = ['https://replicate.delivery/pbxt/VfXfRyrgZLqXi02REDAdwcpqq4oQ4aZebXadK
           'https://replicate.delivery/pbxt/AppGYdNsDW7EA5XF41ryLriRw1GvKGklsf37ejL7R2y3La4QA/out-0.png', 'https://replicate.delivery/pbxt/CMYweKxCo4SkLKzG9eVddj1fmQgW7nDBItK3orHZGjZpX0whA/out-0.png', 'https://replicate.delivery/pbxt/DsMh6UbDzfy9B6XNZo0GnsHllZOfs9pPTQe7Vyf5eSjBfiGOE/out-0.png', 'https://replicate.delivery/pbxt/4hK0gBDDUXo4CFmaurrinimkyCoUjiksEazlQnweviU4FNcIA/out-0.png']
 
 
-def generate_empowering_video(audio_filename, images_urls):
+def generate_empowering_video(audio_filename, images_urls, durations):
+    print("Generating Empowerment Video...\n")
     # Load the audio and image clips
     audio = AudioFileClip(audio_filename)
     duration_per_image = audio.duration / len(images_urls)
@@ -32,6 +33,7 @@ def generate_empowering_video(audio_filename, images_urls):
 
     # Write the final clip to a file
     final_clip.write_videofile("output.mp4")
+    print("Video Generated:\nfilename: ./output.mp4")
 
 
 # def generate_empowering_video(audio_filename, images_urls):
@@ -47,4 +49,4 @@ def generate_empowering_video(audio_filename, images_urls):
 #     # Write the final clip to a file
 #     final_clip.write_videofile("output.mp4")
 
-generate_empowering_video("temp.mp3", images)
+# generate_empowering_video("temp.mp3", images)

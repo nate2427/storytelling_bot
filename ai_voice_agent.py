@@ -7,6 +7,7 @@ set_api_key(os.getenv('XI_API_KEY'))
 
 
 def create_voiceover_from_text(script, voice_name="clone/Nate Baker - Clear"):
+    print("Generating voiceover...\n")
     # generate an audio object
     voice = Voice(voice_id='f4WyhCVmdkKp3QoMbjdW', name='Nate Baker - Clear',
                   category='cloned', settings=VoiceSettings(stability=0.65, similarity_boost=0.65))
@@ -18,6 +19,7 @@ def create_voiceover_from_text(script, voice_name="clone/Nate Baker - Clear"):
     filename = "./temp.mp3"
     # save the audio
     save(audio, filename)
+    print("Voiceover saved to " + filename + "\n")
     return filename
 
 

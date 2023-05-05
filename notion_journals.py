@@ -19,9 +19,6 @@ def read_journal_from_notion(url):
     # parse the url to get the page id by splitting the string at - and grabbing the last value
     page_id = extract_page_id(url)
 
-    print("Connecting to notion...")
-    print(f"Page id: {page_id}")
-
     # Retrieve the blocks for the Page
     results = notion.blocks.children.list(
         block_id=page_id,
@@ -42,7 +39,9 @@ def read_journal_from_notion(url):
     return str_result
 
 
-def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script", title="Script"):
+def write_to_notion_page(content, url, name="Voiceover Script", title="Script", extra_space=False):
+    if extra_space == False:
+        content = content.split("\n\n")
     # get page id
     page_id = extract_page_id(url)
     children = []
@@ -53,11 +52,12 @@ def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script",
                     "rich_text": [{"type": "text", "text": {"content": title}}]
                 }
     })
-    for parag in content.split("\n\n"):
+    for parag in content:
         children.append({"object": "block", "type": "paragraph", "paragraph": {
                         "rich_text": [{"type": "text", "text": {"content": parag}}]}})
-        children.append({"object": "block", "type": "paragraph", "paragraph": {
-                        "rich_text": [{"type": "text", "text": {"content": "\n\n"}}]}})
+        if extra_space == True:
+            children.append({"object": "block", "type": "paragraph", "paragraph": {
+                            "rich_text": [{"type": "text", "text": {"content": "\n\n"}}]}})
 
     # Create a new page in the database
     new_page = {
@@ -79,6 +79,7 @@ def write_voiceover_script_to_notion_page(content, url, name="Voiceover Script",
 
 
 def add_images_to_story(url, images):
+    print("Writing images to notion document...\n")
     # get page id
     page_id = extract_page_id(url)
     # Retrieve the blocks for the Page
@@ -110,6 +111,7 @@ def add_images_to_story(url, images):
                     # append the image block to the current block using the current block's id
                     append_image_block(
                         results["results"][i]["id"], image_block)
+    print("Images added to story successfully...\n")
 
 
 def remove_images_from_story(url):
@@ -183,20 +185,6 @@ def append_image_block(block_id, image_url):
                 "object": "block",
                 "type": "image",
                 "image": image_url
-            },
-            {
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {
-                    "rich_text": [
-                        {
-                            "type": "text",
-                            "text": {
-                                "content": image_url
-                            }
-                        }
-                    ]
-                }
             }
         ]
     }
@@ -238,6 +226,7 @@ def write_audio_to_notion_page(audio_url, url, title="Voiceover"):
     return story_page["url"]
 
 
-# url = "https://www.notion.so/Midjourney-Prompts-534a0cac9cf04712803f47536b6043c6"
-# images = ['https://replicate.delivery/pbxt/taMeCxtKZ0U8SSYimjgyeMitv6mLMm6anoI1Xxh65TQ8sC4QA/out-0.png', 'https://replicate.delivery/pbxt/DS3cqTSx3gZ1JVPLxmixjon0IVGr38x8d2vr32SgxYNOrAOE/out-0.png',
-#           'https://replicate.delivery/pbxt/j25dWeYrYdTJECbAUr11YYZr198Odfxsy5yje1k42pAyZFwhA/out-0.png', 'https://replicate.delivery/pbxt/u1swVibZAMrgMJojpb1jkebwf3kPf8h2irf2ehxQaoePOrAOE/out-0.png', 'https://replicate.delivery/pbxt/UfLqfKAF76lns0VJTayZfV7nBOGmo4Y6LdlOOPSoOv24ZFwhA/out-0.png']
+# url = "https://www.notion.so/Midjourney-Prompts-d0df06abc23849039212d7f1ffeed1df"
+# images = ['https://replicate.delivery/pbxt/BUdvsOjVF1ZXBp8LF417fBDL1agZMzetHuvgzhK1FbIcpr4QA/out-0.png', 'https://replicate.delivery/pbxt/g87rnjJ1usoyM5HgKmt9kzj16HWLMDd1PvGyi7lHMMLX6KOE/out-0.png', 'https://replicate.delivery/pbxt/G3VAGBtuchamIlnZHVDz5vNOSVQohbgjfxh9zJKemf6BTXxhA/out-0.png',
+#           'https://replicate.delivery/pbxt/Ez4NIEeNYITcVKFSpALT0F135y0JTfuEWAI4PvTbbvanpr4QA/out-0.png', 'https://replicate.delivery/pbxt/JSlClZmqehRTda4X8fq5GHtULSkjU27aevCRIlLhZ68BTXxhA/out-0.png', 'https://replicate.delivery/pbxt/OgVbQyicJv7iOdg0WEeJvxUfyRo2385xcdHxkvQ1Bt8kpr4QA/out-0.png', 'https://replicate.delivery/pbxt/CjYxtIYtIZIcEZyrUKR9feVwnl5IBceL1YZye8c1e3UmMdFHC/out-0.png']
+# add_images_to_story(url, images)

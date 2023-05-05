@@ -26,11 +26,13 @@ prompts = [
 
 
 def generate_ai_art(prompts=prompts):
+    print("Generating AI Art from Midjourney Prompts...\n")
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(get_image_for_prompt, prompt)
                    for prompt in prompts]
         images = [future.result() for future in futures]
     images = [
         image[1] for prompt in prompts for image in images if image[0] == prompt]
-    print(images)
+    print("Finished Generating AI Art from Midjourney Prompts...\n")
+    # print(images)
     return images
